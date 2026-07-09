@@ -19,33 +19,9 @@
 		86E8EA4F2FE446BD0036AC09 /* GroupLeader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GroupLeader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		867F81682FF339B8007EC867 /* Exceptions for "GroupLeader" folder in "GroupLeader" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Supabase.xcconfig,
-			);
-			target = 86E8EA4E2FE446BD0036AC09 /* GroupLeader */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		867F81692FF339B8007EC867 /* Exceptions for "GroupLeader" folder in "Compile Sources" phase from "GroupLeader" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 86E8EA4B2FE446BD0036AC09 /* Sources */;
-			membershipExceptions = (
-				Supabase.xcconfig,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		86E8EA512FE446BD0036AC09 /* GroupLeader */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				867F81682FF339B8007EC867 /* Exceptions for "GroupLeader" folder in "GroupLeader" target */,
-				867F81692FF339B8007EC867 /* Exceptions for "GroupLeader" folder in "Compile Sources" phase from "GroupLeader" target */,
-			);
 			path = GroupLeader;
 			sourceTree = "<group>";
 		};
@@ -175,6 +151,8 @@
 /* Begin XCBuildConfiguration section */
 		86E8EA582FE446BD0036AC09 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 86E8EA512FE446BD0036AC09 /* GroupLeader */;
+			baseConfigurationReferenceRelativePath = Supabase.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -238,6 +216,8 @@
 		};
 		86E8EA592FE446BD0036AC09 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 86E8EA512FE446BD0036AC09 /* GroupLeader */;
+			baseConfigurationReferenceRelativePath = Supabase.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -294,6 +274,8 @@
 		};
 		86E8EA5B2FE446BD0036AC09 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 86E8EA512FE446BD0036AC09 /* GroupLeader */;
+			baseConfigurationReferenceRelativePath = Supabase.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -325,6 +307,8 @@
 		};
 		86E8EA5C2FE446BD0036AC09 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 86E8EA512FE446BD0036AC09 /* GroupLeader */;
+			baseConfigurationReferenceRelativePath = Supabase.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

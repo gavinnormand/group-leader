@@ -11,7 +11,7 @@ import SwiftUI
 struct GroupLeaderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
 }
