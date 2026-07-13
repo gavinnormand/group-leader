@@ -4,11 +4,13 @@
 //
 //  Created by Gavin Normand on 6/18/26.
 //
+
 import Foundation
 
 struct LeaderboardEntry: Identifiable {
     let id: UUID
-    let name: String
-    let score: Double
+    let username: String
+    let avatarUrl: String?
+    let totalPoints: Int
     let position: Int
 }

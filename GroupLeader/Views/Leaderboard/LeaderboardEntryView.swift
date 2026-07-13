@@ -9,27 +9,28 @@ import SwiftUI
 
 struct LeaderboardEntryView: View {
     let entry: LeaderboardEntry
-    
+
     var body: some View {
-        HStack{
+        HStack(spacing: 12) {
             LeaderboardPositionView(position: entry.position)
+            ProfilePictureView(username: entry.username, avatarUrl: entry.avatarUrl, size: 36)
+            Text(entry.username)
+                .fontWeight(.semibold)
             Spacer()
-            Text(entry.name)
-                .bold()
-            Spacer()
-            Text("\(entry.position) points")
+            Text(entry.totalPoints > 0 ? "+\(entry.totalPoints)" : "\(entry.totalPoints)")
+                .fontWeight(.medium)
+                .foregroundStyle(entry.totalPoints >= 0 ? .green : .red)
         }
     }
 }
 
 #Preview {
-    LeaderboardEntryView(
-        entry:
-            LeaderboardEntry(
-                id: UUID(),
-                name: "Gavin",
-                score: 1250,
-                position: 1
-            )
-    )
+    LeaderboardEntryView(entry: LeaderboardEntry(
+        id: UUID(),
+        username: "gavinnormand",
+        avatarUrl: nil,
+        totalPoints: 1250,
+        position: 1
+    ))
+    .padding()
 }
