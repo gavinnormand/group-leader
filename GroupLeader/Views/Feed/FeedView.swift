@@ -68,6 +68,9 @@ struct FeedView: View {
                 await loadMore()
             }
         }
+        .refreshable {
+            refreshTrigger.toggle()
+        }
     }
 
     private func loadMore() async {
