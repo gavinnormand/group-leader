@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var isAdmin = false
     @State private var showNewPost = false
     @State private var feedRefreshTrigger = false
+    @State private var showGroups = false
 
     init(currentGroup: GroupModel) {
         self._currentGroup = State(initialValue: currentGroup)
@@ -23,27 +24,37 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 HStack {
-                    NavigationLink(destination: GroupsView(
-                        currentGroup: Binding(
-                            get: { currentGroup },
-                            set: { if let g = $0 { currentGroup = g } }
-                        )
-                    )) {
-                        HStack(spacing: 4) {
-                            Text(currentGroup.name)
-                                .font(.headline)
-                                .foregroundStyle(.primary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+                    Button {
+                        showGroups = true
+                    } label: {
+                        Image(systemName: "person.2")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 32, height: 32)
+                            .background(Color(.secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
+
                     Spacer()
+
+                    Text(currentGroup.name)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
                     if isAdmin {
                         NavigationLink(destination: GroupSettingsView(group: currentGroup, isAdmin: true)) {
-                            Image(systemName: "gear")
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 16))
                                 .foregroundStyle(.secondary)
+                                .frame(width: 32, height: 32)
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
+                    } else {
+                        Color.clear
+                            .frame(width: 32, height: 32)
                     }
                 }
                 .padding(.horizontal)
@@ -88,6 +99,17 @@ struct ContentView: View {
             NewPostView(group: currentGroup, onPost: {
                 feedRefreshTrigger.toggle()
             })
+        }
+        .sheet(isPresented: $showGroups) {
+            NavigationStack {
+                GroupsView(
+                    currentGroup: Binding(
+                        get: { currentGroup },
+                        set: { if let g = $0 { currentGroup = g } }
+                    )
+                )
+            }
+            .presentationBackground(Color(.systemGroupedBackground))
         }
     }
 }
