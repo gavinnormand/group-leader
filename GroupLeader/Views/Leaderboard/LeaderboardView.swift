@@ -8,11 +8,28 @@
 import SwiftUI
 import Supabase
 
+enum TimeFilter: String, CaseIterable {
+    case allTime = "All time"
+    case thirtyDays = "30 days"
+    case sevenDays = "7 days"
+    case oneDay = "1 day"
+
+    var startDate: Date? {
+        switch self {
+        case .allTime: return nil
+        case .thirtyDays: return Calendar.current.date(byAdding: .day, value: -30, to: Date())
+        case .sevenDays: return Calendar.current.date(byAdding: .day, value: -7, to: Date())
+        case .oneDay: return Calendar.current.date(byAdding: .day, value: -1, to: Date())
+        }
+    }
+}
+
 struct LeaderboardView: View {
     let group: GroupModel
 
     @State private var metrics: [MetricModel] = []
     @State private var selectedMetric: MetricModel?
+    @State private var selectedFilter: TimeFilter = .allTime
     @State private var entries: [LeaderboardEntry] = []
     @State private var isLoadingMetrics = false
     @State private var isLoadingEntries = false
@@ -21,6 +38,7 @@ struct LeaderboardView: View {
     var body: some View {
         VStack(spacing: 0) {
             if !metrics.isEmpty {
+                // metric picker
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(metrics) { metric in
@@ -32,15 +50,38 @@ struct LeaderboardView: View {
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 7)
-                                    .background(selectedMetric?.id == metric.id ? Color.accentColor : Color(.secondarySystemBackground))
+                                    .background(selectedMetric?.id == metric.id ? Color.accentColor : Color(.systemGray6))
                                     .foregroundStyle(selectedMetric?.id == metric.id ? .white : .primary)
-                                    .clipShape(.rect(cornerRadius: 12))
+                                    .clipShape(Capsule())
                             }
                         }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 10)
                 }
+
+                Divider()
+
+                HStack(spacing: 8) {
+                    ForEach(TimeFilter.allCases, id: \.self) { filter in
+                        Button {
+                            selectedFilter = filter
+                        } label: {
+                            Text(filter.rawValue)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(selectedFilter == filter ? Color.accentColor : Color(.systemGray6))
+                                .foregroundStyle(selectedFilter == filter ? .white : .primary)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
                 Divider()
             }
 
@@ -50,7 +91,7 @@ struct LeaderboardView: View {
                 Spacer()
             } else if entries.isEmpty {
                 Spacer()
-                Text(metrics.isEmpty ? "No metrics yet." : "No points recorded yet.")
+                Text(metrics.isEmpty ? "No metrics yet." : "No points recorded.")
                     .foregroundStyle(.secondary)
                 Spacer()
             } else {
@@ -92,10 +133,14 @@ struct LeaderboardView: View {
         .onChange(of: selectedMetric?.id) {
             Task { await fetchEntries() }
         }
+        .onChange(of: selectedFilter) {
+            Task { await fetchEntries() }
+        }
         .onChange(of: group.id) {
             Task {
                 entries = []
                 selectedMetric = nil
+                selectedFilter = .allTime
                 await fetchMetrics()
             }
         }
@@ -129,10 +174,17 @@ struct LeaderboardView: View {
                 let value: Int
             }
 
-            let pointRows: [PointRow] = try await supabase
+            var query = supabase
                 .from("point_assignments")
                 .select("recipient_id, value")
                 .eq("metric_id", value: metric.id)
+
+            if let startDate = selectedFilter.startDate {
+                let formatter = ISO8601DateFormatter()
+                query = query.gte("created_at", value: formatter.string(from: startDate))
+            }
+
+            let pointRows: [PointRow] = try await query
                 .execute()
                 .value
 
@@ -183,6 +235,18 @@ struct LeaderboardView: View {
             print("fetchEntries error:", error)
         }
         isLoadingEntries = false
+    }
+}
+
+#Preview {
+    NavigationStack {
+        LeaderboardView(group: GroupModel(
+            id: UUID(),
+            name: "Study Group",
+            createdBy: UUID(),
+            joinCode: "ABC123",
+            createdAt: Date()
+        ))
     }
 }
 
