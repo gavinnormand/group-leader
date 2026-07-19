@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Supabase
 
 struct GroupModel: Codable, Identifiable {
     let id: UUID
@@ -13,4 +14,8 @@ struct GroupModel: Codable, Identifiable {
     let createdBy: UUID
     let joinCode: String
     let createdAt: Date
+    
+    var isAdmin: Bool {
+        supabase.auth.currentUser?.id == createdBy
+    }
 }

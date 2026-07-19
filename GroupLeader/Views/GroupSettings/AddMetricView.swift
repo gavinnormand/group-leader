@@ -19,36 +19,34 @@ struct AddMetricView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                Spacer()
-
-                Text("New metric")
-                    .font(.title2.bold())
-
-                TextField("Metric name (e.g. Attendance)", text: $name)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+            List {
+                Section(footer: Text("New metric")) {
+                    TextField("Metric name (e.g. Attendance)", text: $name)
+                }
 
                 if let errorMessage {
-                    Text(errorMessage)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                    Section {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                 }
-
-                Button("Add") {
-                    Task { await addMetric() }
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(name.isEmpty || isLoading)
-
-                Spacer()
             }
-            .padding()
             .navigationTitle("Add metric")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Create") {
+                            Task { await addMetric() }
+                        }
+                        .disabled(name.isEmpty)
+                    }
                 }
             }
         }

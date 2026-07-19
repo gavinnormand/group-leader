@@ -37,17 +37,16 @@ struct NewPostView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-
-                    // caption
+                    
                     TextField("Add a caption (optional)", text: $caption, axis: .vertical)
                         .lineLimit(3...6)
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    // assignments
+                    
                     Text("Point assignments")
-                        .font(.footnote)
+                        .font(.callout)
                         .foregroundStyle(.secondary)
 
                     ForEach($assignments) { $assignment in
@@ -102,9 +101,12 @@ struct NewPostView: View {
 
     private func fetchMembersAndMetrics() async {
         isLoading = true
-        guard let userId = supabase.auth.currentUser?.id else { return }
+        
+        if (supabase.auth.currentUser?.id == nil) {
+            return
+        }
+        
         do {
-            // fetch group members
             let memberships: [GroupMemberModel] = try await supabase
                 .from("group_members")
                 .select()
@@ -122,7 +124,6 @@ struct NewPostView: View {
                 .execute()
                 .value
 
-            // fetch metrics for this group
             metrics = try await supabase
                 .from("metrics")
                 .select()
@@ -142,7 +143,6 @@ struct NewPostView: View {
         errorMessage = nil
         guard let userId = supabase.auth.currentUser?.id else { return }
         do {
-            // insert post
             struct PostInsert: Encodable {
                 let group_id: UUID
                 let author_id: UUID
@@ -161,7 +161,6 @@ struct NewPostView: View {
                 .execute()
                 .value
 
-            // insert point assignments
             struct PointAssignmentInsert: Encodable {
                 let post_id: UUID
                 let metric_id: UUID

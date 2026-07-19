@@ -16,7 +16,7 @@ struct PointAssignmentView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(assignment.recipientUsername)
                     .font(.system(size: 13, weight: .medium))
-                Text(assignment.metricName)
+                Text(assignment.metricName + " points")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -31,7 +31,7 @@ struct PointAssignmentView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(Color(.systemGray6))
+        .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

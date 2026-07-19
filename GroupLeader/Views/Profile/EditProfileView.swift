@@ -23,7 +23,7 @@ struct EditProfileView: View {
     init(user: UserModel, onSave: @escaping () async -> Void) {
         self.user = user
         self.onSave = onSave
-        self._username = State(initialValue: user.username ?? "")
+        self._username = State(initialValue: user.username)
     }
 
     var body: some View {
@@ -64,8 +64,7 @@ struct EditProfileView: View {
                 TextField("Username", text: $username)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+                    .textInputStyle()
 
                 if let errorMessage {
                     Text(errorMessage)

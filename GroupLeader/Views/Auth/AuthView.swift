@@ -27,18 +27,19 @@ struct AuthView: View {
                 Text("Welcome back!")
                     .font(.title2.bold())
 
-                TextField("Email", text: $email)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.emailAddress)
-                    .textFieldStyle(.roundedBorder)
-
-                SecureField("Password", text: $password)
-                    .textFieldStyle(.roundedBorder)
+                    TextField("Email", text: $email)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+                        .textInputStyle()
+                        
+                    SecureField("Password", text: $password)
+                        .textInputStyle()
 
                 Button("Sign In") {
                     Task { await signIn() }
                 }
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
                 .disabled(isLoading || email.isEmpty || password.isEmpty)
 
                 Button("Need an account? Sign up") {
@@ -54,15 +55,16 @@ struct AuthView: View {
                 TextField("Email", text: $email)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
-                    .textFieldStyle(.roundedBorder)
+                    .textInputStyle()
 
                 SecureField("Password", text: $password)
-                    .textFieldStyle(.roundedBorder)
+                    .textInputStyle()
 
                 Button("Sign Up") {
                     Task { await signUp() }
                 }
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
                 .disabled(isLoading || email.isEmpty || password.isEmpty)
 
                 Button("Already have an account? Sign in") {
@@ -82,12 +84,18 @@ struct AuthView: View {
 
                 TextField("6-digit code", text: $otp)
                     .keyboardType(.numberPad)
-                    .textFieldStyle(.roundedBorder)
+                    .textInputStyle()
+                    .onChange(of: otp) { oldValue, newValue in
+                        if newValue.count > 6 {
+                            otp = String(newValue.prefix(6))
+                        }
+                    }
 
                 Button("Verify") {
                     Task { await verifyOTP() }
                 }
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle)
                 .disabled(isLoading || otp.isEmpty)
             }
 
@@ -106,8 +114,14 @@ struct AuthView: View {
         errorMessage = nil
         do {
             try await supabase.auth.signIn(email: email, password: password)
+            UserDefaults.standard.removeObject(forKey: "pendingVerificationEmail")
         } catch {
-            errorMessage = error.localizedDescription
+            if error.localizedDescription.localizedCaseInsensitiveContains("not confirmed") {
+                await resendCode()
+                step = .verify
+            } else {
+                errorMessage = error.localizedDescription
+            }
         }
         isLoading = false
     }
@@ -137,6 +151,14 @@ struct AuthView: View {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+    
+    private func resendCode() async {
+        do {
+            try await supabase.auth.resend(email: email, type: .signup)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }
 

@@ -52,7 +52,7 @@ struct MyProfileView: View {
                         }
                         ForEach(metricTotals, id: \.metricName) { item in
                             HStack {
-                                Text("\(item.metricName) points")
+                                Label("\(item.metricName) points", systemImage: "star.fill")
                                 Spacer()
                                 Text(item.total > 0 ? "+\(item.total)" : "\(item.total)")
                                     .fontWeight(.medium)
@@ -96,6 +96,8 @@ struct MyProfileView: View {
                     EditProfileView(user: user, onSave: {
                         await fetchProfile()
                     })
+                    .presentationDetents([.medium])
+                    .presentationBackground(Color(.systemGroupedBackground))
                 }
             }
         }
@@ -106,7 +108,6 @@ struct MyProfileView: View {
         errorMessage = nil
         guard let userId = supabase.auth.currentUser?.id else { return }
         do {
-            // fetch user
             user = try await supabase
                 .from("users")
                 .select()
@@ -115,7 +116,6 @@ struct MyProfileView: View {
                 .execute()
                 .value
 
-            // fetch metrics for this group
             let metrics: [MetricModel] = try await supabase
                 .from("metrics")
                 .select()
@@ -123,7 +123,6 @@ struct MyProfileView: View {
                 .execute()
                 .value
 
-            // fetch all point assignments for this user in this group
             struct PointRow: Decodable {
                 let value: Int
                 let metricId: UUID
@@ -136,7 +135,6 @@ struct MyProfileView: View {
                 .execute()
                 .value
 
-            // group points by metric
             metricTotals = metrics.compactMap { metric in
                 let total = pointRows
                     .filter { $0.metricId == metric.id }
@@ -144,7 +142,6 @@ struct MyProfileView: View {
                 return (metricName: metric.name, total: total)
             }
 
-            // fetch post count
             struct PostCount: Decodable {
                 let id: UUID
             }

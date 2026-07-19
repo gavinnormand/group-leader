@@ -15,6 +15,8 @@ struct GroupsView: View {
     @State private var groups: [GroupModel] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var showJoinGroup = false
+    @State private var showCreateGroup = false
 
     var body: some View {
         List {
@@ -49,9 +51,24 @@ struct GroupsView: View {
                             }
                         }
                     }
+                    .swipeActions(edge: .trailing) {
+                        if group.isAdmin {
+                            NavigationLink(destination: GroupSettingsView(group: group, isAdmin: true)) {
+                                Image(systemName: "gear")
+                            }
+                            .tint(.gray)
+                        }
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            Task { await leaveGroup(group) }
+                        } label: {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                        }
+                    }
                 }
             }
-
+            
             if let errorMessage {
                 Section {
                     Text(errorMessage)
@@ -59,17 +76,13 @@ struct GroupsView: View {
                         .foregroundStyle(.red)
                 }
             }
-
+            
             Section {
-                NavigationLink("Join a group") {
-                    JoinGroupView(onJoin: {
-                        await fetchGroups()
-                    })
+                Button("Join a group") {
+                    showJoinGroup = true
                 }
-                NavigationLink("Create a group") {
-                    CreateGroupView(onCreate: {
-                        await fetchGroups()
-                    })
+                Button("Create a group") {
+                    showCreateGroup = true
                 }
             }
         }
@@ -80,6 +93,24 @@ struct GroupsView: View {
         }
         .refreshable {
             await fetchGroups()
+        }
+        .sheet(isPresented: $showJoinGroup) {
+            JoinGroupView(
+                onJoin: {
+                    await fetchGroups()
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationBackground(Color(.systemGroupedBackground))
+        }
+        .sheet(isPresented: $showCreateGroup) {
+            CreateGroupView(
+                onCreate: {
+                    await fetchGroups()
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationBackground(Color(.systemGroupedBackground))
         }
     }
 
@@ -120,6 +151,42 @@ struct GroupsView: View {
         }
         isLoading = false
     }
+    
+    private func leaveGroup(_ group: GroupModel) async {
+        guard let userId = supabase.auth.currentUser?.id else { return }
+        
+        if group.isAdmin {
+            errorMessage = "You can't leave a group you created. Delete the group instead from group settings."
+            return
+        }
+        
+        do {
+            struct MemberUpdate: Encodable {
+                let is_active: Bool
+                let left_at: String
+            }
+
+            try await supabase
+                .from("group_members")
+                .update(MemberUpdate(
+                    is_active: false,
+                    left_at: ISO8601DateFormatter().string(from: Date())
+                ))
+                .eq("group_id", value: group.id.uuidString)
+                .eq("user_id", value: userId.uuidString)
+                .execute()
+
+            if currentGroup?.id == group.id {
+                currentGroup = nil
+            }
+
+            await fetchGroups()
+        } catch {
+            errorMessage = error.localizedDescription
+            print("leaveGroup error:", error)
+        }
+    }
+
 }
 
 #Preview {

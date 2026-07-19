@@ -20,7 +20,6 @@ struct LeaderboardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // metric picker
             if !metrics.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -33,9 +32,9 @@ struct LeaderboardView: View {
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 7)
-                                    .background(selectedMetric?.id == metric.id ? Color.accentColor : Color(.systemGray6))
+                                    .background(selectedMetric?.id == metric.id ? Color.accentColor : Color(.secondarySystemBackground))
                                     .foregroundStyle(selectedMetric?.id == metric.id ? .white : .primary)
-                                    .clipShape(Capsule())
+                                    .clipShape(.rect(cornerRadius: 12))
                             }
                         }
                     }
@@ -137,7 +136,6 @@ struct LeaderboardView: View {
                 .execute()
                 .value
 
-            // group by recipient and sum
             var totals: [UUID: Int] = [:]
             for row in pointRows {
                 totals[row.recipientId, default: 0] += row.value
@@ -149,7 +147,6 @@ struct LeaderboardView: View {
                 return
             }
 
-            // fetch user info for each recipient
             let userIds = totals.keys.map { $0.uuidString }
             let users: [UserModel] = try await supabase
                 .from("users")
@@ -158,13 +155,12 @@ struct LeaderboardView: View {
                 .execute()
                 .value
 
-            // build sorted entries
             entries = users
                 .compactMap { user -> LeaderboardEntry? in
                     guard let total = totals[user.id] else { return nil }
                     return LeaderboardEntry(
                         id: user.id,
-                        username: user.username ?? "Unknown",
+                        username: user.username,
                         avatarUrl: user.avatarUrl,
                         totalPoints: total,
                         position: 0

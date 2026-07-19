@@ -16,10 +16,9 @@ struct AssignmentRowView: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
-                // recipient picker
                 Menu {
                     ForEach(members) { member in
-                        Button(member.username ?? "Unknown") {
+                        Button(member.username) {
                             assignment.recipient = member
                         }
                     }
@@ -35,11 +34,10 @@ struct AssignmentRowView: View {
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
-                // metric picker
                 Menu {
                     ForEach(metrics) { metric in
                         Button(metric.name) {
@@ -58,11 +56,10 @@ struct AssignmentRowView: View {
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
-                // delete
                 Button(action: onDelete) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
@@ -70,7 +67,6 @@ struct AssignmentRowView: View {
                 }
             }
 
-            // value stepper
             HStack {
                 Text("Points")
                     .font(.subheadline)
@@ -98,7 +94,7 @@ struct AssignmentRowView: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(Color(.systemGray6))
+            .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }

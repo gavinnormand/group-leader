@@ -72,8 +72,7 @@ struct CreateUserView: View {
             TextField("Username", text: $username)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
+                .textInputStyle()
 
             if let errorMessage {
                 Text(errorMessage)
@@ -85,6 +84,7 @@ struct CreateUserView: View {
                 Task { await createUser() }
             }
             .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.roundedRectangle)
             .disabled(username.isEmpty || isLoading)
 
             Spacer()

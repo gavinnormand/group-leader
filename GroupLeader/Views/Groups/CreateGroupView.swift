@@ -21,36 +21,36 @@ struct CreateGroupView: View {
     }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        NavigationStack {
+            List {
+                Section(footer: Text("Name your new group")) {
+                    TextField("Group name", text: $name)
+                }
 
-            Text("Name your group")
-                .font(.title2.bold())
-
-            TextField("Group name", text: $name)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
-
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
             }
-
-            Button("Create") {
-                Task { await createGroup() }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(name.isEmpty || isLoading)
-
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("New group")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if isLoading { ProgressView() }
+            .navigationTitle("New group")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Create") {
+                            Task { await createGroup() }
+                        }
+                        .disabled(name.isEmpty)
+                    }
+                }
             }
         }
     }

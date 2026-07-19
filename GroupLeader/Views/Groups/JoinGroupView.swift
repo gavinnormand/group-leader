@@ -16,41 +16,41 @@ struct JoinGroupView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            Text("Enter join code")
-                .font(.title2.bold())
-
-            TextField("ABC123", text: $code)
-                .textInputAutocapitalization(.characters)
-                .autocorrectionDisabled()
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal)
-                .onChange(of: code) { _, newValue in
-                    code = String(newValue.prefix(6)).uppercased()
+        NavigationStack {
+            List {
+                Section(footer: Text("Ask your group admin for the 6-character code.")) {
+                    TextField("ABC123", text: $code)
+                        .textInputAutocapitalization(.characters)
+                        .autocorrectionDisabled()
+                        .onChange(of: code) { _, newValue in
+                            code = String(newValue.prefix(6)).uppercased()
+                        }
                 }
 
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                if let errorMessage {
+                    Section {
+                        Text(errorMessage)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
             }
-
-            Button("Join") {
-                Task { await joinGroup() }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(code.count != 6 || isLoading)
-
-            Spacer()
-        }
-        .padding()
-        .navigationTitle("Join a group")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if isLoading { ProgressView() }
+            .navigationTitle("Join a group")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Join") {
+                            Task { await joinGroup() }
+                        }
+                        .disabled(code.count != 6)
+                    }
+                }
             }
         }
     }

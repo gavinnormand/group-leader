@@ -50,6 +50,8 @@ struct ManageMetricsView: View {
             AddMetricView(group: group, onAdd: {
                 await fetchMetrics()
             })
+            .presentationDetents([.medium])
+            .presentationBackground(Color(.systemGroupedBackground))
         }
         .task {
             await fetchMetrics()
