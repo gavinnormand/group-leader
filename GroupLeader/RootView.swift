@@ -37,7 +37,9 @@ struct RootView: View {
                     )
                 }
             case .authenticated(let group):
-                ContentView(currentGroup: group)
+                ContentView(currentGroup: group, onGroupDeleted: {
+                    Task { await checkGroup() }
+                })
             }
         }
         .task {

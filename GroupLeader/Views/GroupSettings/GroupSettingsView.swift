@@ -11,14 +11,16 @@ import Supabase
 struct GroupSettingsView: View {
     let group: GroupModel
     let isAdmin: Bool
+    var onDelete: (() -> Void)? = nil
 
     @State private var name: String
     @State private var showDeleteConfirm = false
     @Environment(\.dismiss) private var dismiss
 
-    init(group: GroupModel, isAdmin: Bool) {
+    init(group: GroupModel, isAdmin: Bool, onDelete: (() -> Void)? = nil) {
         self.group = group
         self.isAdmin = isAdmin
+        self.onDelete = onDelete
         self._name = State(initialValue: group.name)
     }
 
@@ -108,6 +110,7 @@ struct GroupSettingsView: View {
                 .eq("id", value: group.id)
                 .execute()
             dismiss()
+            onDelete?()
         } catch {
             print("deleteGroup error:", error)
         }

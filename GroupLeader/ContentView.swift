@@ -15,9 +15,11 @@ struct ContentView: View {
     @State private var showNewPost = false
     @State private var feedRefreshTrigger = false
     @State private var showGroups = false
+    var onGroupDeleted: (() -> Void)? = nil
 
-    init(currentGroup: GroupModel) {
+    init(currentGroup: GroupModel, onGroupDeleted: (() -> Void)? = nil) {
         self._currentGroup = State(initialValue: currentGroup)
+        self.onGroupDeleted = onGroupDeleted
     }
 
     var body: some View {
@@ -44,7 +46,7 @@ struct ContentView: View {
                     Spacer()
 
                     if isAdmin {
-                        NavigationLink(destination: GroupSettingsView(group: currentGroup, isAdmin: true)) {
+                        NavigationLink(destination: GroupSettingsView(group: currentGroup, isAdmin: true, onDelete: onGroupDeleted)) {
                             Image(systemName: "gearshape")
                                 .font(.system(size: 16))
                                 .foregroundStyle(.secondary)
