@@ -158,7 +158,7 @@ struct LeaderboardView: View {
                 .value
             selectedMetric = metrics.first
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch metrics error: \(error.localizedDescription)"
             print("fetchMetrics error:", error)
         }
         isLoadingMetrics = false
@@ -231,7 +231,7 @@ struct LeaderboardView: View {
                 }
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch entries error: \(error.localizedDescription)"
             print("fetchEntries error:", error)
         }
         isLoadingEntries = false

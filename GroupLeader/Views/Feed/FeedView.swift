@@ -16,6 +16,7 @@ struct FeedView: View {
     @State private var isLoading = false
     @State private var hasMore = true
     @State private var page = 0
+    @State private var errorMessage: String?
     let pageSize = 20
 
     var body: some View {
@@ -41,6 +42,11 @@ struct FeedView: View {
                         .onAppear {
                             Task { await loadMore() }
                         }
+                } else if let errorMessage {
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .padding(.vertical, 32)
                 } else {
                     Text("That's everything")
                         .font(.subheadline)
@@ -109,6 +115,7 @@ struct FeedView: View {
                 hasMore = false
             }
         } catch {
+            errorMessage = "Load feed error: \(error.localizedDescription)"
             print("FeedView loadMore error:", error)
             hasMore = false
         }

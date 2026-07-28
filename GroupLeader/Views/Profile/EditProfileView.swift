@@ -129,7 +129,7 @@ struct EditProfileView: View {
             await onSave()
             dismiss()
         } catch {
-            errorMessage = "That username is taken. Try another."
+            errorMessage = "Save profile error: \(error.localizedDescription)"
             print("saveProfile error:", error)
         }
         isLoading = false

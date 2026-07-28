@@ -69,7 +69,7 @@ struct AddMetricView: View {
             await onAdd()
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Add metric error: \(error.localizedDescription)"
             print("addMetric error:", error)
         }
         isLoading = false

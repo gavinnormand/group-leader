@@ -15,6 +15,7 @@ struct GroupSettingsView: View {
 
     @State private var name: String
     @State private var showDeleteConfirm = false
+    @State private var errorMessage: String?
     @Environment(\.dismiss) private var dismiss
 
     init(group: GroupModel, isAdmin: Bool, onDelete: (() -> Void)? = nil) {
@@ -59,6 +60,14 @@ struct GroupSettingsView: View {
                 }
             }
 
+            if let errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            }
+
             Section {
                 Button("Delete group", role: .destructive) {
                     showDeleteConfirm = true
@@ -98,6 +107,7 @@ struct GroupSettingsView: View {
                 .execute()
             dismiss()
         } catch {
+            errorMessage = "Save name error: \(error.localizedDescription)"
             print("saveName error:", error)
         }
     }
@@ -112,6 +122,7 @@ struct GroupSettingsView: View {
             dismiss()
             onDelete?()
         } catch {
+            errorMessage = "Delete group error: \(error.localizedDescription)"
             print("deleteGroup error:", error)
         }
     }

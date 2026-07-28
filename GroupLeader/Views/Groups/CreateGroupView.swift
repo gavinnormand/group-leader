@@ -76,7 +76,7 @@ struct CreateGroupView: View {
             await onCreate()
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Create group error: \(error.localizedDescription)"
             print("CreateGroup error:", error)
         }
         isLoading = false

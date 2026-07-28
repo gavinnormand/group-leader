@@ -132,7 +132,7 @@ struct NewPostView: View {
                 .value
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch members and metrics error: \(error.localizedDescription)"
             print("fetchMembersAndMetrics error:", error)
         }
         isLoading = false
@@ -187,7 +187,7 @@ struct NewPostView: View {
             await onPost()
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Submit post error: \(error.localizedDescription)"
             print("submitPost error:", error)
         }
         isPosting = false

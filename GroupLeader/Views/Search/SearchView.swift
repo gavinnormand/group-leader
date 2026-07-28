@@ -127,7 +127,7 @@ struct SearchView: View {
                 .value
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch members error: \(error.localizedDescription)"
             print("fetchMembers error:", error)
         }
         isLoading = false

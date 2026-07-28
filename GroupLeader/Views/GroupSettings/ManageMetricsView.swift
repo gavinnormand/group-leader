@@ -22,6 +22,11 @@ struct ManageMetricsView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity)
                     .listRowSeparator(.hidden)
+            } else if let errorMessage {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .listRowSeparator(.hidden)
             } else if metrics.isEmpty {
                 Text("No metrics yet. Add one to get started.")
                     .foregroundStyle(.secondary)
@@ -71,7 +76,7 @@ struct ManageMetricsView: View {
                 .execute()
                 .value
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch metrics error: \(error.localizedDescription)"
             print("fetchMetrics error:", error)
         }
         isLoading = false
@@ -89,7 +94,7 @@ struct ManageMetricsView: View {
             }
             await fetchMetrics()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Delete metric error: \(error.localizedDescription)"
             print("deleteMetric error:", error)
         }
     }

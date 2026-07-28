@@ -103,7 +103,7 @@ struct ManageMembersView: View {
                 .value
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch members error: \(error.localizedDescription)"
             print("fetchMembers error:", error)
         }
         isLoading = false
@@ -127,7 +127,7 @@ struct ManageMembersView: View {
                 .execute()
             await fetchMembers()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Remove member error: \(error.localizedDescription)"
             print("removeMember error:", error)
         }
     }

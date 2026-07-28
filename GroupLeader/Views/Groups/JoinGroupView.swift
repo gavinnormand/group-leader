@@ -76,7 +76,7 @@ struct JoinGroupView: View {
             await onJoin()
             dismiss()
         } catch {
-            errorMessage = "Group not found. Check the code and try again."
+            errorMessage = "Join group error: \(error.localizedDescription)"
             print("JoinGroup error:", error)
         }
         isLoading = false

@@ -146,7 +146,7 @@ struct GroupsView: View {
                 currentGroup = groups.first
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch groups error: \(error.localizedDescription)"
             print("fetchGroups error:", error)
         }
         isLoading = false
@@ -182,7 +182,7 @@ struct GroupsView: View {
 
             await fetchGroups()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Leave group error: \(error.localizedDescription)"
             print("leaveGroup error:", error)
         }
     }

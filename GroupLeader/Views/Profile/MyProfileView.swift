@@ -162,7 +162,7 @@ struct MyProfileView: View {
             totalPosts = postRows.count
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch profile error: \(error.localizedDescription)"
             print("fetchProfile error:", error)
         }
         isLoading = false
@@ -172,7 +172,7 @@ struct MyProfileView: View {
         do {
             try await supabase.auth.signOut()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Sign out error: \(error.localizedDescription)"
             print("signOut error:", error)
         }
     }

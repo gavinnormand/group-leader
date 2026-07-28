@@ -120,7 +120,7 @@ struct AuthView: View {
                 await resendCode()
                 step = .verify
             } else {
-                errorMessage = error.localizedDescription
+                errorMessage = "Sign in error: \(error.localizedDescription)"
             }
         }
         isLoading = false
@@ -133,7 +133,7 @@ struct AuthView: View {
             try await supabase.auth.signUp(email: email, password: password)
             step = .verify
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Sign up error: \(error.localizedDescription)"
         }
         isLoading = false
     }
@@ -148,16 +148,16 @@ struct AuthView: View {
                 type: .signup
             )
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Verify code error: \(error.localizedDescription)"
         }
         isLoading = false
     }
-    
+
     private func resendCode() async {
         do {
             try await supabase.auth.resend(email: email, type: .signup)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Resend code error: \(error.localizedDescription)"
         }
     }
 }

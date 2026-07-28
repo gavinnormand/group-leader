@@ -118,7 +118,7 @@ struct CreateUserView: View {
 
             await onComplete()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Create user error: \(error.localizedDescription)"
             print("CreateUser error:", error)
         }
         isLoading = false

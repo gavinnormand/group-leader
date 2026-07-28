@@ -125,7 +125,7 @@ struct ProfileView: View {
             totalPosts = postRows.count
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Fetch stats error: \(error.localizedDescription)"
             print("fetchStats error:", error)
         }
         isLoading = false
