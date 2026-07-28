@@ -19,6 +19,11 @@ struct ProfileView: View {
 
     var body: some View {
         List {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .listRowSeparator(.hidden)
+            }
             Section {
                 HStack(spacing: 16) {
                     ProfilePictureView(
