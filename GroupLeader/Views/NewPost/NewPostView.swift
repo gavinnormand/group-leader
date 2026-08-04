@@ -36,15 +36,20 @@ struct NewPostView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                if isLoading {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 32)
+                } else {
                 VStack(alignment: .leading, spacing: 16) {
-                    
+
                     TextField("Add a caption (optional)", text: $caption, axis: .vertical)
                         .lineLimit(3...6)
                         .padding()
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    
+
                     Text("Point assignments")
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -74,6 +79,7 @@ struct NewPostView: View {
                     }
                 }
                 .padding()
+                }
             }
             .navigationTitle("New post")
             .navigationBarTitleDisplayMode(.inline)

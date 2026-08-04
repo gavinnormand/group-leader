@@ -13,6 +13,7 @@ struct ManageMembersView: View {
 
     @State private var members: [UserModel] = []
     @State private var isLoading = false
+    @State private var removingMemberId: UUID?
     @State private var errorMessage: String?
 
     var body: some View {
@@ -45,13 +46,18 @@ struct ManageMembersView: View {
                         }
                         Spacer()
                         if member.id != group.createdBy {
-                            Button(role: .destructive) {
-                                Task { await removeMember(member) }
-                            } label: {
-                                Image(systemName: "person.badge.minus")
-                                    .foregroundStyle(.red)
+                            if removingMemberId == member.id {
+                                ProgressView()
+                            } else {
+                                Button(role: .destructive) {
+                                    Task { await removeMember(member) }
+                                } label: {
+                                    Image(systemName: "person.badge.minus")
+                                        .foregroundStyle(.red)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(removingMemberId != nil)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -110,6 +116,7 @@ struct ManageMembersView: View {
     }
 
     private func removeMember(_ member: UserModel) async {
+        removingMemberId = member.id
         do {
             struct MemberUpdate: Encodable {
                 let is_active: Bool
@@ -130,6 +137,7 @@ struct ManageMembersView: View {
             errorMessage = "Remove member error: \(error.localizedDescription)"
             print("removeMember error:", error)
         }
+        removingMemberId = nil
     }
 }
 

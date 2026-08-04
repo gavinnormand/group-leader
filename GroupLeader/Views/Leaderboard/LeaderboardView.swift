@@ -31,9 +31,11 @@ struct LeaderboardView: View {
     @State private var selectedMetric: MetricModel?
     @State private var selectedFilter: TimeFilter = .allTime
     @State private var entries: [LeaderboardEntry] = []
+    @State private var usersById: [UUID: UserModel] = [:]
     @State private var isLoadingMetrics = false
     @State private var isLoadingEntries = false
     @State private var errorMessage: String?
+    @State private var fetchId = UUID()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -98,13 +100,9 @@ struct LeaderboardView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(entries) { entry in
+                            if let user = usersById[entry.id] {
                             NavigationLink(destination: ProfileView(
-                                user: UserModel(
-                                    id: entry.id,
-                                    username: entry.username,
-                                    avatarUrl: entry.avatarUrl,
-                                    createdAt: Date()
-                                ),
+                                user: user,
                                 group: group
                             )) {
                                 LeaderboardEntryView(entry: entry)
@@ -113,6 +111,7 @@ struct LeaderboardView: View {
                             }
                             .buttonStyle(.plain)
                             Divider()
+                            }
                         }
                     }
                 }
@@ -166,6 +165,8 @@ struct LeaderboardView: View {
 
     private func fetchEntries() async {
         guard let metric = selectedMetric else { return }
+        let currentFetchId = UUID()
+        fetchId = currentFetchId
         isLoadingEntries = true
         errorMessage = nil
         do {
@@ -193,6 +194,8 @@ struct LeaderboardView: View {
                 totals[row.recipientId, default: 0] += row.value
             }
 
+            guard fetchId == currentFetchId else { return }
+
             if totals.isEmpty {
                 entries = []
                 isLoadingEntries = false
@@ -206,6 +209,10 @@ struct LeaderboardView: View {
                 .in("id", values: userIds)
                 .execute()
                 .value
+
+            guard fetchId == currentFetchId else { return }
+
+            usersById = Dictionary(uniqueKeysWithValues: users.map { ($0.id, $0) })
 
             entries = users
                 .compactMap { user -> LeaderboardEntry? in
@@ -235,18 +242,6 @@ struct LeaderboardView: View {
             print("fetchEntries error:", error)
         }
         isLoadingEntries = false
-    }
-}
-
-#Preview {
-    NavigationStack {
-        LeaderboardView(group: GroupModel(
-            id: UUID(),
-            name: "Study Group",
-            createdBy: UUID(),
-            joinCode: "ABC123",
-            createdAt: Date()
-        ))
     }
 }
 

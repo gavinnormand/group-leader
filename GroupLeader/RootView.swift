@@ -64,6 +64,8 @@ struct RootView: View {
                 .execute()
                 .value
             await checkGroup()
+        } catch let error as URLError {
+            print("checkUser network error:", error)
         } catch {
             appState = .needsUsername
         }

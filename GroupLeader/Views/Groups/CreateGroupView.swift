@@ -25,6 +25,9 @@ struct CreateGroupView: View {
             List {
                 Section(footer: Text("Name your new group")) {
                     TextField("Group name", text: $name)
+                        .onChange(of: name) { _, newValue in
+                            if newValue.count > 30 { name = String(newValue.prefix(30)) }
+                        }
                 }
 
                 if let errorMessage {
@@ -48,7 +51,7 @@ struct CreateGroupView: View {
                         Button("Create") {
                             Task { await createGroup() }
                         }
-                        .disabled(name.isEmpty)
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
             }
@@ -62,7 +65,7 @@ struct CreateGroupView: View {
         do {
             let group: GroupModel = try await supabase
                 .from("groups")
-                .insert(GroupInsert(name: name, created_by: userId))
+                .insert(GroupInsert(name: name.trimmingCharacters(in: .whitespaces), created_by: userId))
                 .select()
                 .single()
                 .execute()

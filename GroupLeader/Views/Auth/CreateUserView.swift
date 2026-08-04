@@ -73,6 +73,10 @@ struct CreateUserView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .textInputStyle()
+                .onChange(of: username) { _, newValue in
+                    let filtered = String(newValue.prefix(20)).filter { $0.isLetter || $0.isNumber || $0 == "_" }
+                    if filtered != newValue { username = filtered }
+                }
 
             if let errorMessage {
                 Text(errorMessage)
@@ -85,7 +89,7 @@ struct CreateUserView: View {
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.roundedRectangle)
-            .disabled(username.isEmpty || isLoading)
+            .disabled(username.trimmingCharacters(in: .whitespaces).isEmpty || isLoading)
 
             Spacer()
         }
@@ -113,7 +117,7 @@ struct CreateUserView: View {
 
             try await supabase
                 .from("users")
-                .insert(UserInsert(id: userId.uuidString, username: username, avatarUrl: avatarUrl))
+                .insert(UserInsert(id: userId.uuidString, username: username.trimmingCharacters(in: .whitespaces), avatarUrl: avatarUrl))
                 .execute()
 
             await onComplete()

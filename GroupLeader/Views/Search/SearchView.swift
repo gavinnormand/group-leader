@@ -51,8 +51,12 @@ struct SearchView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                         .listRowSeparator(.hidden)
-                } else if filtered.isEmpty && !query.isEmpty {
-                    Text("No members found.")
+                } else if members.isEmpty {
+                    Text("No members in this group yet.")
+                        .foregroundStyle(.secondary)
+                        .listRowSeparator(.hidden)
+                } else if filtered.isEmpty {
+                    Text("No results for \"\(query)\"")
                         .foregroundStyle(.secondary)
                         .listRowSeparator(.hidden)
                 } else {

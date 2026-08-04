@@ -15,6 +15,8 @@ struct GroupSettingsView: View {
 
     @State private var name: String
     @State private var showDeleteConfirm = false
+    @State private var isSaving = false
+    @State private var isDeleting = false
     @State private var errorMessage: String?
     @Environment(\.dismiss) private var dismiss
 
@@ -72,16 +74,21 @@ struct GroupSettingsView: View {
                 Button("Delete group", role: .destructive) {
                     showDeleteConfirm = true
                 }
+                .disabled(isDeleting)
             }
         }
         .navigationTitle("Group settings")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
-                    Task { await saveName() }
+                if isSaving {
+                    ProgressView()
+                } else {
+                    Button("Save") {
+                        Task { await saveName() }
+                    }
+                    .disabled(name.isEmpty || name == group.name)
                 }
-                .disabled(name.isEmpty || name == group.name)
             }
         }
         .confirmationDialog(
@@ -99,6 +106,7 @@ struct GroupSettingsView: View {
     }
 
     private func saveName() async {
+        isSaving = true
         do {
             try await supabase
                 .from("groups")
@@ -110,9 +118,11 @@ struct GroupSettingsView: View {
             errorMessage = "Save name error: \(error.localizedDescription)"
             print("saveName error:", error)
         }
+        isSaving = false
     }
 
     private func deleteGroup() async {
+        isDeleting = true
         do {
             try await supabase
                 .from("groups")
@@ -125,6 +135,7 @@ struct GroupSettingsView: View {
             errorMessage = "Delete group error: \(error.localizedDescription)"
             print("deleteGroup error:", error)
         }
+        isDeleting = false
     }
 }
 

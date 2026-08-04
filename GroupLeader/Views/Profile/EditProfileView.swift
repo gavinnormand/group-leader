@@ -65,6 +65,10 @@ struct EditProfileView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .textInputStyle()
+                    .onChange(of: username) { _, newValue in
+                        let filtered = String(newValue.prefix(20)).filter { $0.isLetter || $0.isNumber || $0 == "_" }
+                        if filtered != newValue { username = filtered }
+                    }
 
                 if let errorMessage {
                     Text(errorMessage)
@@ -89,7 +93,7 @@ struct EditProfileView: View {
                             Task { await saveProfile() }
                         }
                         .fontWeight(.semibold)
-                        .disabled(username.isEmpty)
+                        .disabled(username.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
             }
@@ -122,7 +126,7 @@ struct EditProfileView: View {
 
             try await supabase
                 .from("users")
-                .update(UserUpdate(username: username, avatar_url: avatarUrl))
+                .update(UserUpdate(username: username.trimmingCharacters(in: .whitespaces), avatar_url: avatarUrl))
                 .eq("id", value: userId.uuidString)
                 .execute()
 

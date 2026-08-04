@@ -22,6 +22,9 @@ struct AddMetricView: View {
             List {
                 Section(footer: Text("New metric")) {
                     TextField("Metric name (e.g. Attendance)", text: $name)
+                        .onChange(of: name) { _, newValue in
+                            if newValue.count > 30 { name = String(newValue.prefix(30)) }
+                        }
                 }
 
                 if let errorMessage {
@@ -45,7 +48,7 @@ struct AddMetricView: View {
                         Button("Create") {
                             Task { await addMetric() }
                         }
-                        .disabled(name.isEmpty)
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                 }
             }
@@ -63,7 +66,7 @@ struct AddMetricView: View {
 
             try await supabase
                 .from("metrics")
-                .insert(MetricInsert(group_id: group.id, name: name))
+                .insert(MetricInsert(group_id: group.id, name: name.trimmingCharacters(in: .whitespaces)))
                 .execute()
 
             await onAdd()

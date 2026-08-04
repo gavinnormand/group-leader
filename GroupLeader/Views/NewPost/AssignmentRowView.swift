@@ -79,6 +79,7 @@ struct AssignmentRowView: View {
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
+                .disabled(assignment.value <= -99)
                 Text(assignment.value > 0 ? "+\(assignment.value)" : "\(assignment.value)")
                     .font(.subheadline.monospacedDigit())
                     .fontWeight(.medium)
@@ -91,6 +92,7 @@ struct AssignmentRowView: View {
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
+                .disabled(assignment.value >= 99)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)

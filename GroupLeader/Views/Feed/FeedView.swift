@@ -33,7 +33,13 @@ struct FeedView: View {
                     Divider()
                 }
 
-                if isLoading {
+                if posts.isEmpty && !isLoading && !hasMore && errorMessage == nil {
+                    Text("No posts yet. Be the first to post!")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 32)
+                } else if isLoading {
                     ProgressView()
                         .padding(.vertical, 32)
                 } else if hasMore {
