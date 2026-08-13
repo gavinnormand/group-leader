@@ -64,7 +64,7 @@ struct SearchView: View {
                         NavigationLink(destination: ProfileView(user: member, group: group)) {
                             HStack(spacing: 12) {
                                 ProfilePictureView(
-                                    username: member.username ?? "?",
+                                    username: member.username,
                                     avatarUrl: member.avatarUrl,
                                     size: 36
                                 )

@@ -27,12 +27,12 @@ struct ProfileView: View {
             Section {
                 HStack(spacing: 16) {
                     ProfilePictureView(
-                        username: user.username ?? "?",
+                        username: user.username,
                         avatarUrl: user.avatarUrl,
                         size: 64
                     )
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(user.username ?? "Unknown")
+                        Text(user.username)
                             .font(.title3)
                             .fontWeight(.semibold)
                         if group.createdBy == user.id {
