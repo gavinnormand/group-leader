@@ -58,20 +58,13 @@ struct JoinGroupView: View {
     private func joinGroup() async {
         isLoading = true
         errorMessage = nil
-        guard let userId = supabase.auth.currentUser?.id else { return }
+        guard supabase.auth.currentUser != nil else { return }
         do {
-            let group: GroupModel = try await supabase
-                .from("groups")
-                .select()
-                .eq("join_code", value: code)
+            let _: GroupModel = try await supabase
+                .rpc("join_group", params: ["p_code": code])
                 .single()
                 .execute()
                 .value
-
-            try await supabase
-                .from("group_members")
-                .insert(["group_id": group.id.uuidString, "user_id": userId.uuidString])
-                .execute()
 
             await onJoin()
             dismiss()
