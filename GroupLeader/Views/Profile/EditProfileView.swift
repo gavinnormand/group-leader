@@ -109,7 +109,7 @@ struct EditProfileView: View {
 
             if let avatarImage,
                let imageData = avatarImage.jpegData(compressionQuality: 0.8) {
-                let path = "\(userId.uuidString)/avatar.jpg"
+                let path = "\(userId.uuidString.lowercased())/avatar.jpg"
                 try await supabase.storage
                     .from("avatars")
                     .upload(path, data: imageData, options: .init(contentType: "image/jpeg", upsert: true))

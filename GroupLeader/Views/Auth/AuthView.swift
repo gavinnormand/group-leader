@@ -12,11 +12,13 @@ enum AuthStep {
     case signIn, signUp, verify
 }
 
+private let pendingVerificationEmailKey = "pendingVerificationEmail"
+
 struct AuthView: View {
-    @State private var email = ""
+    @State private var email = UserDefaults.standard.string(forKey: pendingVerificationEmailKey) ?? ""
     @State private var password = ""
     @State private var otp = ""
-    @State private var step: AuthStep = .signIn
+    @State private var step: AuthStep = UserDefaults.standard.string(forKey: pendingVerificationEmailKey) == nil ? .signIn : .verify
     @State private var isLoading = false
     @State private var errorMessage: String?
 
@@ -97,6 +99,20 @@ struct AuthView: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle)
                 .disabled(isLoading || otp.isEmpty)
+
+                Button("Resend code") {
+                    Task { await resendCode() }
+                }
+                .font(.footnote)
+                .disabled(isLoading)
+
+                Button("Use a different email") {
+                    clearPendingVerification()
+                    otp = ""
+                    step = .signIn
+                    errorMessage = nil
+                }
+                .font(.footnote)
             }
 
             if let errorMessage {
@@ -114,10 +130,11 @@ struct AuthView: View {
         errorMessage = nil
         do {
             try await supabase.auth.signIn(email: email, password: password)
-            UserDefaults.standard.removeObject(forKey: "pendingVerificationEmail")
+            clearPendingVerification()
         } catch {
             if error.localizedDescription.localizedCaseInsensitiveContains("not confirmed") {
                 await resendCode()
+                savePendingVerification()
                 step = .verify
             } else {
                 errorMessage = "Sign in error: \(error.localizedDescription)"
@@ -131,6 +148,7 @@ struct AuthView: View {
         errorMessage = nil
         do {
             try await supabase.auth.signUp(email: email, password: password)
+            savePendingVerification()
             step = .verify
         } catch {
             errorMessage = "Sign up error: \(error.localizedDescription)"
@@ -147,6 +165,7 @@ struct AuthView: View {
                 token: otp,
                 type: .signup
             )
+            clearPendingVerification()
         } catch {
             errorMessage = "Verify code error: \(error.localizedDescription)"
         }
@@ -159,6 +178,14 @@ struct AuthView: View {
         } catch {
             errorMessage = "Resend code error: \(error.localizedDescription)"
         }
+    }
+
+    private func savePendingVerification() {
+        UserDefaults.standard.set(email, forKey: pendingVerificationEmailKey)
+    }
+
+    private func clearPendingVerification() {
+        UserDefaults.standard.removeObject(forKey: pendingVerificationEmailKey)
     }
 }
 
