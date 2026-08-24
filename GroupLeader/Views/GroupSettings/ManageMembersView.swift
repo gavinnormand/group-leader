@@ -10,6 +10,7 @@ import Supabase
 
 struct ManageMembersView: View {
     let group: GroupModel
+    var onChange: (() async -> Void)? = nil
 
     @State private var members: [UserModel] = []
     @State private var isLoading = false
@@ -133,6 +134,7 @@ struct ManageMembersView: View {
                 .eq("user_id", value: member.id)
                 .execute()
             await fetchMembers()
+            await onChange?()
         } catch {
             errorMessage = "Remove member error: \(error.localizedDescription)"
             print("removeMember error:", error)

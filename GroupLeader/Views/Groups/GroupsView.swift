@@ -51,15 +51,30 @@ struct GroupsView: View {
                             }
                         }
                     }
-                    .swipeActions(edge: .trailing) {
+                    .swipeActions(edge: .leading) {
                         if group.isAdmin {
-                            NavigationLink(destination: GroupSettingsView(group: group, isAdmin: true)) {
+                            NavigationLink(destination: GroupSettingsView(
+                                group: group,
+                                isAdmin: true,
+                                onUpdate: { updatedGroup in
+                                    if currentGroup?.id == updatedGroup.id {
+                                        currentGroup = updatedGroup
+                                    }
+                                    await fetchGroups()
+                                },
+                                onDelete: {
+                                    if currentGroup?.id == group.id {
+                                        currentGroup = nil
+                                    }
+                                    await fetchGroups()
+                                }
+                            )) {
                                 Image(systemName: "gear")
                             }
                             .tint(.gray)
                         }
                     }
-                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             Task { await leaveGroup(group) }
                         } label: {

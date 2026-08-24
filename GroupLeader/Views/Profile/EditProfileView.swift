@@ -116,7 +116,7 @@ struct EditProfileView: View {
                 let url = try supabase.storage
                     .from("avatars")
                     .getPublicURL(path: path)
-                avatarUrl = url.absoluteString
+                avatarUrl = "\(url.absoluteString)?v=\(UUID().uuidString)"
             }
 
             struct UserUpdate: Encodable {

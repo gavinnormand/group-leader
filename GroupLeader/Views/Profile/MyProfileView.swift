@@ -10,6 +10,7 @@ import Supabase
 
 struct MyProfileView: View {
     let group: GroupModel
+    @Binding var refreshTrigger: Bool
 
     @State private var user: UserModel?
     @State private var metricTotals: [(metricName: String, total: Int)] = []
@@ -96,10 +97,19 @@ struct MyProfileView: View {
             .task {
                 await fetchProfile()
             }
+            .onChange(of: group.id) {
+                Task { await fetchProfile() }
+            }
+            .onChange(of: refreshTrigger) {
+                Task { await fetchProfile() }
+            }
+            .refreshable {
+                await fetchProfile()
+            }
             .sheet(isPresented: $showEditProfile) {
                 if let user {
                     EditProfileView(user: user, onSave: {
-                        await fetchProfile()
+                        refreshTrigger.toggle()
                     })
                     .presentationDetents([.medium])
                     .presentationBackground(Color(.systemGroupedBackground))
@@ -185,5 +195,5 @@ struct MyProfileView: View {
         createdBy: UUID(),
         joinCode: "ABC123",
         createdAt: Date()
-    ))
+    ), refreshTrigger: .constant(false))
 }

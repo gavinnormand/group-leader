@@ -9,18 +9,15 @@ import SwiftUI
 import Supabase
 
 struct ContentView: View {
-    @State private var selectedTab = 0
-    @State private var currentGroup: GroupModel
-    @State private var isAdmin = false
-    @State private var showNewPost = false
-    @State private var feedRefreshTrigger = false
-    @State private var showGroups = false
-    var onGroupDeleted: (() -> Void)? = nil
+    let group: GroupModel
+    @Binding var selectedGroup: GroupModel?
 
-    init(currentGroup: GroupModel, onGroupDeleted: (() -> Void)? = nil) {
-        self._currentGroup = State(initialValue: currentGroup)
-        self.onGroupDeleted = onGroupDeleted
-    }
+    @State private var selectedTab = 0
+    @State private var showNewPost = false
+    @State private var refreshTrigger = false
+    @State private var showGroups = false
+
+    private var isAdmin: Bool { group.isAdmin }
 
     var body: some View {
         NavigationStack {
@@ -39,14 +36,22 @@ struct ContentView: View {
 
                     Spacer()
 
-                    Text(currentGroup.name)
+                    Text(group.name)
                         .font(.headline)
                         .foregroundStyle(.primary)
 
                     Spacer()
 
                     if isAdmin {
-                        NavigationLink(destination: GroupSettingsView(group: currentGroup, isAdmin: true, onDelete: onGroupDeleted)) {
+                        NavigationLink(destination: GroupSettingsView(
+                            group: group,
+                            isAdmin: true,
+                            onUpdate: { updatedGroup in
+                                selectedGroup = updatedGroup
+                                refreshTrigger.toggle()
+                            },
+                            onDelete: { selectedGroup = nil }
+                        )) {
                             Image(systemName: "gearshape")
                                 .font(.system(size: 16))
                                 .foregroundStyle(.secondary)
@@ -65,11 +70,11 @@ struct ContentView: View {
                 Divider()
 
                 TabView(selection: $selectedTab) {
-                    FeedView(group: currentGroup, refreshTrigger: $feedRefreshTrigger)
+                    FeedView(group: group, refreshTrigger: $refreshTrigger)
                         .tabItem { Image(systemName: "newspaper") }
                         .tag(0)
 
-                    LeaderboardView(group: currentGroup)
+                    LeaderboardView(group: group, refreshTrigger: $refreshTrigger)
                         .tabItem { Image(systemName: "trophy") }
                         .tag(1)
 
@@ -77,11 +82,11 @@ struct ContentView: View {
                         .tabItem { Image(systemName: "plus.circle.fill") }
                         .tag(2)
 
-                    SearchView(group: currentGroup)
+                    SearchView(group: group, refreshTrigger: $refreshTrigger)
                         .tabItem { Image(systemName: "magnifyingglass") }
                         .tag(3)
 
-                    MyProfileView(group: currentGroup)
+                    MyProfileView(group: group, refreshTrigger: $refreshTrigger)
                         .tabItem { Image(systemName: "person") }
                         .tag(4)
                 }
@@ -93,23 +98,15 @@ struct ContentView: View {
                 }
             }
             .navigationBarHidden(true)
-            .onAppear {
-                isAdmin = supabase.auth.currentUser?.id == currentGroup.createdBy
-            }
         }
         .sheet(isPresented: $showNewPost) {
-            NewPostView(group: currentGroup, onPost: {
-                feedRefreshTrigger.toggle()
+            NewPostView(group: group, onPost: {
+                refreshTrigger.toggle()
             })
         }
         .sheet(isPresented: $showGroups) {
             NavigationStack {
-                GroupsView(
-                    currentGroup: Binding(
-                        get: { currentGroup },
-                        set: { if let g = $0 { currentGroup = g } }
-                    )
-                )
+                GroupsView(currentGroup: $selectedGroup)
             }
             .presentationBackground(Color(.systemGroupedBackground))
         }
@@ -117,11 +114,14 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(currentGroup: GroupModel(
-        id: UUID(),
-        name: "Study Group",
-        createdBy: UUID(),
-        joinCode: "ABC123",
-        createdAt: Date()
-    ))
+    ContentView(
+        group: GroupModel(
+            id: UUID(),
+            name: "Study Group",
+            createdBy: UUID(),
+            joinCode: "ABC123",
+            createdAt: Date()
+        ),
+        selectedGroup: .constant(nil)
+    )
 }

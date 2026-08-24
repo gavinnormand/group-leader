@@ -10,6 +10,7 @@ import Supabase
 
 struct SearchView: View {
     let group: GroupModel
+    @Binding var refreshTrigger: Bool
 
     @State private var query = ""
     @State private var members: [UserModel] = []
@@ -101,6 +102,12 @@ struct SearchView: View {
         .onChange(of: group.id) {
             Task { await fetchMembers() }
         }
+        .onChange(of: refreshTrigger) {
+            Task { await fetchMembers() }
+        }
+        .refreshable {
+            await fetchMembers()
+        }
     }
 
     private func fetchMembers() async {
@@ -146,6 +153,6 @@ struct SearchView: View {
             createdBy: UUID(),
             joinCode: "ABC123",
             createdAt: Date()
-        ))
+        ), refreshTrigger: .constant(false))
     }
 }

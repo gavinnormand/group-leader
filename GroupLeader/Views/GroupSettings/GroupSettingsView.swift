@@ -11,7 +11,8 @@ import Supabase
 struct GroupSettingsView: View {
     let group: GroupModel
     let isAdmin: Bool
-    var onDelete: (() -> Void)? = nil
+    var onUpdate: ((GroupModel) async -> Void)? = nil
+    var onDelete: (() async -> Void)? = nil
 
     @State private var name: String
     @State private var showDeleteConfirm = false
@@ -20,9 +21,15 @@ struct GroupSettingsView: View {
     @State private var errorMessage: String?
     @Environment(\.dismiss) private var dismiss
 
-    init(group: GroupModel, isAdmin: Bool, onDelete: (() -> Void)? = nil) {
+    init(
+        group: GroupModel,
+        isAdmin: Bool,
+        onUpdate: ((GroupModel) async -> Void)? = nil,
+        onDelete: (() async -> Void)? = nil
+    ) {
         self.group = group
         self.isAdmin = isAdmin
+        self.onUpdate = onUpdate
         self.onDelete = onDelete
         self._name = State(initialValue: group.name)
     }
@@ -35,13 +42,13 @@ struct GroupSettingsView: View {
 
             Section("Members") {
                 NavigationLink("Manage members") {
-                    ManageMembersView(group: group)
+                    ManageMembersView(group: group, onChange: { await onUpdate?(group) })
                 }
             }
 
             Section("Metrics") {
                 NavigationLink("Manage metrics") {
-                    ManageMetricsView(group: group)
+                    ManageMetricsView(group: group, onChange: { await onUpdate?(group) })
                 }
             }
 
@@ -108,11 +115,15 @@ struct GroupSettingsView: View {
     private func saveName() async {
         isSaving = true
         do {
-            try await supabase
+            let updatedGroup: GroupModel = try await supabase
                 .from("groups")
                 .update(["name": name])
                 .eq("id", value: group.id)
+                .select()
+                .single()
                 .execute()
+                .value
+            await onUpdate?(updatedGroup)
             dismiss()
         } catch {
             errorMessage = "Save name error: \(error.localizedDescription)"
@@ -129,8 +140,8 @@ struct GroupSettingsView: View {
                 .delete()
                 .eq("id", value: group.id)
                 .execute()
+            await onDelete?()
             dismiss()
-            onDelete?()
         } catch {
             errorMessage = "Delete group error: \(error.localizedDescription)"
             print("deleteGroup error:", error)

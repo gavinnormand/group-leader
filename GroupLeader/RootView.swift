@@ -12,11 +12,12 @@ enum AppState {
     case unauthenticated
     case needsUsername
     case needsGroup
-    case authenticated(group: GroupModel)
+    case authenticated
 }
 
 struct RootView: View {
     @State private var appState: AppState = .unauthenticated
+    @State private var currentGroup: GroupModel?
 
     var body: some View {
         Group {
@@ -30,16 +31,23 @@ struct RootView: View {
             case .needsGroup:
                 NavigationStack {
                     GroupsView(
-                        currentGroup: .constant(nil),
-                        onGroupSelected: { group in
-                            appState = .authenticated(group: group)
+                        currentGroup: $currentGroup,
+                        onGroupSelected: { _ in
+                            appState = .authenticated
                         }
                     )
                 }
-            case .authenticated(let group):
-                ContentView(currentGroup: group, onGroupDeleted: {
-                    Task { await checkGroup() }
-                })
+            case .authenticated:
+                if let group = currentGroup {
+                    ContentView(group: group, selectedGroup: $currentGroup)
+                } else {
+                    ProgressView()
+                }
+            }
+        }
+        .onChange(of: currentGroup?.id) { _, newId in
+            if newId == nil, case .authenticated = appState {
+                Task { await checkGroup() }
             }
         }
         .task {
@@ -84,6 +92,7 @@ struct RootView: View {
 
             if memberships.isEmpty {
                 appState = .needsGroup
+                currentGroup = nil
                 return
             }
 
@@ -96,13 +105,16 @@ struct RootView: View {
                 .value
 
             if let firstGroup = groups.first {
-                appState = .authenticated(group: firstGroup)
+                currentGroup = firstGroup
+                appState = .authenticated
             } else {
                 appState = .needsGroup
+                currentGroup = nil
             }
         } catch {
             print("checkGroup error:", error)
             appState = .needsGroup
+            currentGroup = nil
         }
     }
 }

@@ -10,6 +10,7 @@ import Supabase
 
 struct ManageMetricsView: View {
     let group: GroupModel
+    var onChange: (() async -> Void)? = nil
 
     @State private var metrics: [MetricModel] = []
     @State private var isLoading = false
@@ -54,6 +55,7 @@ struct ManageMetricsView: View {
         .sheet(isPresented: $showAddMetric) {
             AddMetricView(group: group, onAdd: {
                 await fetchMetrics()
+                await onChange?()
             })
             .presentationDetents([.medium])
             .presentationBackground(Color(.systemGroupedBackground))
@@ -93,6 +95,7 @@ struct ManageMetricsView: View {
                     .execute()
             }
             await fetchMetrics()
+            await onChange?()
         } catch {
             errorMessage = "Delete metric error: \(error.localizedDescription)"
             print("deleteMetric error:", error)

@@ -26,6 +26,7 @@ enum TimeFilter: String, CaseIterable {
 
 struct LeaderboardView: View {
     let group: GroupModel
+    @Binding var refreshTrigger: Bool
 
     @State private var metrics: [MetricModel] = []
     @State private var selectedMetric: MetricModel?
@@ -143,6 +144,12 @@ struct LeaderboardView: View {
                 await fetchMetrics()
             }
         }
+        .onChange(of: refreshTrigger) {
+            Task {
+                await fetchMetrics()
+                await fetchEntries()
+            }
+        }
     }
 
     private func fetchMetrics() async {
@@ -155,7 +162,8 @@ struct LeaderboardView: View {
                 .eq("group_id", value: group.id)
                 .execute()
                 .value
-            selectedMetric = metrics.first
+            let previousId = selectedMetric?.id
+            selectedMetric = metrics.first { $0.id == previousId } ?? metrics.first
         } catch {
             errorMessage = "Fetch metrics error: \(error.localizedDescription)"
             print("fetchMetrics error:", error)
@@ -253,6 +261,6 @@ struct LeaderboardView: View {
             createdBy: UUID(),
             joinCode: "ABC123",
             createdAt: Date()
-        ))
+        ), refreshTrigger: .constant(false))
     }
 }
