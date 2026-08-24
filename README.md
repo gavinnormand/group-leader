@@ -2,11 +2,11 @@
 
 An iOS app for keeping score in a group. You create a group, invite people with a join code, define the things you want to track ("metrics"), and then award each other points by posting about it. Every metric gets its own leaderboard.
 
-Built as a project to learn Swift and SwiftUI. It's feature-complete for what it set out to do and is no longer under active development — see [Status](#status).
+Built as a project to learn Swift and SwiftUI. It's feature-complete for what it set out to do and is no longer under active development, see [Status](#status).
 
 ## Demo
 
-Check out [this](link) link to interact with the live demo of Group Leader!
+Check out [this](https://appetize.io/app/b_myrsckuh63623eir6ddv5g6qda?device=iphone17pro&osVersion=26.0&appearance=dark&autoplay=true&toolbar=false) link to interact with the live demo of Group Leader!
 
 ## Screenshots
 
